@@ -323,7 +323,12 @@ namespace VulkanMinimalCompute
                 for (int j = 0; j < queueFamilyProperties.Length; j++)
                 {
                     if (queueFamilyProperties[j].QueueFlags.HasFlag(Queues.Compute))
-                    { // As above stated, we do no feature checks, so just accept.
+                    {
+                        // As above stated, we do a feature check, because my intel gpu has limited memory
+                        // and runs in a very old API version that doesn't fully support compute
+                        PhysicalDeviceProperties Properties = device.GetProperties();                        
+                        if (Properties.ApiVersion.Patch < 38)
+                            continue;
                         computeQueueFamilyIndex = j;
                         physicalDevice = device;
                         break;
