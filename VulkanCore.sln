@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "04-ComputeParticles", "Samp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VulkanMinimalCompute", "Samples\VulkanMinimalCompute\VulkanMinimalCompute.csproj", "{E838ADC7-DDA5-4462-94A5-3BB709D179B8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VulkanBLAS", "VulkanBLAS\VulkanBLAS.csproj", "{559A3147-477E-4694-B980-A2EC2782CBE2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,6 +97,14 @@ Global
 		{E838ADC7-DDA5-4462-94A5-3BB709D179B8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E838ADC7-DDA5-4462-94A5-3BB709D179B8}.Release|x64.ActiveCfg = Release|Any CPU
 		{E838ADC7-DDA5-4462-94A5-3BB709D179B8}.Release|x64.Build.0 = Release|Any CPU
+		{559A3147-477E-4694-B980-A2EC2782CBE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{559A3147-477E-4694-B980-A2EC2782CBE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{559A3147-477E-4694-B980-A2EC2782CBE2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{559A3147-477E-4694-B980-A2EC2782CBE2}.Debug|x64.Build.0 = Debug|Any CPU
+		{559A3147-477E-4694-B980-A2EC2782CBE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{559A3147-477E-4694-B980-A2EC2782CBE2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{559A3147-477E-4694-B980-A2EC2782CBE2}.Release|x64.ActiveCfg = Release|Any CPU
+		{559A3147-477E-4694-B980-A2EC2782CBE2}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

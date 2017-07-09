@@ -32,6 +32,7 @@ namespace VulkanMinimalCompute
         */
         Instance instance;
 
+        //TODO: get debug reporting working
         DebugReportCallbackExt debugReportCallback;
         /*
         The physical device is some device on the system that supports usage of Vulkan.
@@ -43,8 +44,6 @@ namespace VulkanMinimalCompute
         us to interact with the physical device. 
         */
         Device device;
-
-        int computeQueueFamilyIndex;
 
         /*
         The pipeline specifies the pipeline that all graphics and compute commands pass though in Vulkan.
@@ -99,9 +98,9 @@ namespace VulkanMinimalCompute
         When submitting a command buffer, you must specify to which queue in the family you are submitting to. 
         This variable keeps track of the index of that queue in its family. 
         */
-        int queueFamilyIndex;
+        int computeQueueFamilyIndex;
 
-        public void run()
+        public void Run()
         {
             unsafe
             {
@@ -110,27 +109,27 @@ namespace VulkanMinimalCompute
             }
 
             // Initialize vulkan:
-            createInstance();
-            findPhysicalDevice();
-            createDevice();
-            createBuffer();
-            createDescriptorSetLayout();
-            createDescriptorSet();
-            createComputePipeline();
-            createCommandBuffer();
+            CreateInstance();
+            FindPhysicalDevice();
+            CreateDevice();
+            CreateBuffer();
+            CreateDescriptorSetLayout();
+            CreateDescriptorSet();
+            CreateComputePipeline();
+            CreateCommandBuffer();
 
             // Finally, run the recorded command buffer.
-            runCommandBuffer();
+            RunCommandBuffer();
 
             // The former command rendered a mandelbrot set to a buffer.
             // Save that buffer as a png on disk.
-            saveRenderedImage();
+            SaveRenderedImage();
 
             // Clean up all vulkan resources.
-            cleanup();
+            Cleanup();
         }
 
-        public unsafe void saveRenderedImage()
+        public unsafe void SaveRenderedImage()
         {
             List<byte> image = new List<byte>();
             // Map the buffer memory, so that we can read from it on the CPU.
@@ -166,7 +165,7 @@ namespace VulkanMinimalCompute
             }
         }
 
-        public void createInstance()
+        public void CreateInstance()
         {
             List<string> enabledExtensions = new List<string>();
 
@@ -237,18 +236,21 @@ namespace VulkanMinimalCompute
             Contains application info. This is actually not that important.
             The only real important field is apiVersion.
             */
-            ApplicationInfo applicationInfo = new ApplicationInfo();
-            applicationInfo.ApplicationName = "Hello world app";
-            applicationInfo.ApplicationVersion = 0;
-            applicationInfo.EngineName = "awesomeengine";
-            applicationInfo.EngineVersion = 0;
-            applicationInfo.ApiVersion = default(VulkanCore.Version);
+            ApplicationInfo applicationInfo = new ApplicationInfo()
+            {
+                ApplicationName = "Hello world app",
+                ApplicationVersion = 0,
+                EngineName = "awesomeengine",
+                EngineVersion = 0,
+                ApiVersion = default(VulkanCore.Version)
+            };
+            InstanceCreateInfo createInfo = new InstanceCreateInfo()
+            {
+                ApplicationInfo = applicationInfo,
 
-            InstanceCreateInfo createInfo = new InstanceCreateInfo();
-            createInfo.ApplicationInfo = applicationInfo;
-
-            // Give our desired layers and extensions to vulkan.
-            createInfo.EnabledLayerNames = enabledLayers.ToArray();
+                // Give our desired layers and extensions to vulkan.
+                EnabledLayerNames = enabledLayers.ToArray()
+            };
 
 
             /*
@@ -289,7 +291,7 @@ namespace VulkanMinimalCompute
             return instance.CreateDebugReportCallbackExt(debugReportCreateInfo);
         }
 
-        public void findPhysicalDevice()
+        private void FindPhysicalDevice()
         {
             /*
             In this function, we find a physical device that can be used with Vulkan.
@@ -337,7 +339,7 @@ namespace VulkanMinimalCompute
             }
         }
 
-        public void createDevice()
+        public void CreateDevice()
         {
             /*
             We create the logical device in this function.
@@ -369,24 +371,25 @@ namespace VulkanMinimalCompute
         }
 
         // find memory type with desired properties.
-        int findMemoryType(int memoryTypeBits, MemoryProperties properties)
+        int FindMemoryType(int memoryTypeBits, MemoryProperties properties)
         {
             PhysicalDeviceMemoryProperties memoryProperties = physicalDevice.GetMemoryProperties();
             return memoryProperties.MemoryTypes.IndexOf(memoryTypeBits, properties);
         }
 
-        void createBuffer()
+        void CreateBuffer()
         {
             /*
             We will now create a buffer. We will render the mandelbrot set into this buffer
             in a computer shade later. 
             */
 
-            BufferCreateInfo bufferCreateInfo = new BufferCreateInfo();
-            bufferCreateInfo.Size = bufferSize; // buffer size in bytes. 
-            bufferCreateInfo.Usage = BufferUsages.StorageBuffer;// VK_BUFFER_USAGE_STORAGE_BUFFER_BIT; // buffer is used as a storage buffer.
-            bufferCreateInfo.SharingMode = SharingMode.Exclusive;// VK_SHARING_MODE_EXCLUSIVE; // buffer is exclusive to a single queue family at a time. 
-
+            BufferCreateInfo bufferCreateInfo = new BufferCreateInfo()
+            {
+                Size = bufferSize, // buffer size in bytes. 
+                Usage = BufferUsages.StorageBuffer,// VK_BUFFER_USAGE_STORAGE_BUFFER_BIT; // buffer is used as a storage buffer.
+                SharingMode = SharingMode.Exclusive// VK_SHARING_MODE_EXCLUSIVE; // buffer is exclusive to a single queue family at a time. 
+            };
             buffer = device.CreateBuffer(bufferCreateInfo);
 
             /*
@@ -401,27 +404,28 @@ namespace VulkanMinimalCompute
             /*
             Now use obtained memory requirements info to allocate the memory for the buffer.
             */
-            MemoryAllocateInfo allocateInfo = new MemoryAllocateInfo();
-            allocateInfo.AllocationSize = memoryRequirements.Size; // specify required memory.
-            /*
-            There are several types of memory that can be allocated, and we must choose a memory type that:
-            1) Satisfies the memory requirements(memoryRequirements.memoryTypeBits). 
-            2) Satifies our own usage requirements. We want to be able to read the buffer memory from the GPU to the CPU
-                with vkMapMemory, so we set VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT. 
-            Also, by setting VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, memory written by the device(GPU) will be easily 
-            visible to the host(CPU), without having to call any extra flushing commands. So mainly for convenience, we set
-            this flag.
-            */
-            allocateInfo.MemoryTypeIndex = findMemoryType(
-                memoryRequirements.MemoryTypeBits, MemoryProperties.HostCoherent | MemoryProperties.HostVisible);// VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-
+            MemoryAllocateInfo allocateInfo = new MemoryAllocateInfo()
+            {
+                AllocationSize = memoryRequirements.Size, // specify required memory.
+                                                          /*
+                                                          There are several types of memory that can be allocated, and we must choose a memory type that:
+                                                          1) Satisfies the memory requirements(memoryRequirements.memoryTypeBits). 
+                                                          2) Satifies our own usage requirements. We want to be able to read the buffer memory from the GPU to the CPU
+                                                              with vkMapMemory, so we set VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT. 
+                                                          Also, by setting VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, memory written by the device(GPU) will be easily 
+                                                          visible to the host(CPU), without having to call any extra flushing commands. So mainly for convenience, we set
+                                                          this flag.
+                                                          */
+                MemoryTypeIndex = FindMemoryType(
+                memoryRequirements.MemoryTypeBits, MemoryProperties.HostCoherent | MemoryProperties.HostVisible)// VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+            };
             bufferMemory = device.AllocateMemory(allocateInfo); // allocate memory on device.
 
             // Now associate that allocated memory with the buffer. With that, the buffer is backed by actual memory. 
             buffer.BindMemory(bufferMemory);
         }
 
-        void createDescriptorSetLayout()
+        void CreateDescriptorSetLayout()
         {
             /*
             Here we specify a descriptor set layout. This allows us to bind our descriptors to 
@@ -434,12 +438,13 @@ namespace VulkanMinimalCompute
               layout(std140, binding = 0) buffer buf
             in the compute shader.
             */
-            DescriptorSetLayoutBinding descriptorSetLayoutBinding = new DescriptorSetLayoutBinding();
-            descriptorSetLayoutBinding.Binding = 0; // binding = 0
-            descriptorSetLayoutBinding.DescriptorType = DescriptorType.StorageBuffer;// VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-            descriptorSetLayoutBinding.DescriptorCount = 1;
-            descriptorSetLayoutBinding.StageFlags = ShaderStages.Compute;// VK_SHADER_STAGE_COMPUTE_BIT;
-
+            DescriptorSetLayoutBinding descriptorSetLayoutBinding = new DescriptorSetLayoutBinding()
+            {
+                Binding = 0, // binding = 0
+                DescriptorType = DescriptorType.StorageBuffer,// VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+                DescriptorCount = 1,
+                StageFlags = ShaderStages.Compute// VK_SHADER_STAGE_COMPUTE_BIT;
+            };
             DescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo = new DescriptorSetLayoutCreateInfo();
             // descriptorSetLayoutCreateInfo.bindingCount = 1; // only a single binding in this descriptor set layout. 
             DescriptorSetLayoutBinding[] temp = { descriptorSetLayoutBinding };
@@ -449,7 +454,7 @@ namespace VulkanMinimalCompute
             descriptorSetLayout = device.CreateDescriptorSetLayout(descriptorSetLayoutCreateInfo);
         }
 
-        void createDescriptorSet()
+        void CreateDescriptorSet()
         {
             /*
             So we will allocate a descriptor set here.
@@ -459,14 +464,17 @@ namespace VulkanMinimalCompute
             /*
             Our descriptor pool can only allocate a single storage buffer.
             */
-            DescriptorPoolSize descriptorPoolSize = new DescriptorPoolSize();
-            descriptorPoolSize.Type = DescriptorType.StorageBuffer;// VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-            descriptorPoolSize.DescriptorCount = 1;
-
-            DescriptorPoolCreateInfo descriptorPoolCreateInfo = new DescriptorPoolCreateInfo();
-            descriptorPoolCreateInfo.MaxSets = 1; // we only need to allocate one descriptor set from the pool.
-            descriptorPoolCreateInfo.Flags = DescriptorPoolCreateFlags.FreeDescriptorSet;
-            descriptorPoolCreateInfo.PoolSizes = new[] { descriptorPoolSize };
+            DescriptorPoolSize descriptorPoolSize = new DescriptorPoolSize()
+            {
+                Type = DescriptorType.StorageBuffer,// VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+                DescriptorCount = 1
+            };
+            DescriptorPoolCreateInfo descriptorPoolCreateInfo = new DescriptorPoolCreateInfo()
+            {
+                MaxSets = 1, // we only need to allocate one descriptor set from the pool.
+                Flags = DescriptorPoolCreateFlags.FreeDescriptorSet,
+                PoolSizes = new[] { descriptorPoolSize }
+            };
 
             // create descriptor pool.
             descriptorPool = device.CreateDescriptorPool(descriptorPoolCreateInfo);
@@ -486,18 +494,21 @@ namespace VulkanMinimalCompute
             */
 
             // Specify the buffer to bind to the descriptor.
-            DescriptorBufferInfo descriptorBufferInfo = new DescriptorBufferInfo();
-            descriptorBufferInfo.Buffer = buffer;
-            descriptorBufferInfo.Offset = 0;
-            descriptorBufferInfo.Range = bufferSize;
-
-            WriteDescriptorSet writeDescriptorSet = new WriteDescriptorSet();
-            writeDescriptorSet.DstSet = descriptorSet; // write to this descriptor set.
-            writeDescriptorSet.DstBinding = 0; // write to the first, and only binding.
-            writeDescriptorSet.DstArrayElement = 0;
-            writeDescriptorSet.DescriptorCount = 1; // update a single descriptor.
-            writeDescriptorSet.DescriptorType = DescriptorType.StorageBuffer;// VK_DESCRIPTOR_TYPE_STORAGE_BUFFER; // storage buffer.
-            writeDescriptorSet.BufferInfo = new[] { descriptorBufferInfo };
+            DescriptorBufferInfo descriptorBufferInfo = new DescriptorBufferInfo()
+            {
+                Buffer = buffer,
+                Offset = 0,
+                Range = bufferSize
+            };
+            WriteDescriptorSet writeDescriptorSet = new WriteDescriptorSet()
+            {
+                DstSet = descriptorSet, // write to this descriptor set.
+                DstBinding = 0, // write to the first, and only binding.
+                DstArrayElement = 0,
+                DescriptorCount = 1, // update a single descriptor.
+                DescriptorType = DescriptorType.StorageBuffer,// VK_DESCRIPTOR_TYPE_STORAGE_BUFFER; // storage buffer.
+                BufferInfo = new[] { descriptorBufferInfo }
+            };
 
             // perform the update of the descriptor set.
             WriteDescriptorSet[] k = { writeDescriptorSet };
@@ -506,7 +517,7 @@ namespace VulkanMinimalCompute
 
         // Read file into array of bytes, and cast to uint32_t*, then return.
         // The data has been padded, so that it fits into an array uint32_t.
-        byte[] readFile(string filename)
+        byte[] ReadFile(string filename)
         {
             byte[] bytes;
             const int defaultBufferSize = 4096;
@@ -521,7 +532,7 @@ namespace VulkanMinimalCompute
             return bytes;
         }
 
-        void createComputePipeline()
+        void CreateComputePipeline()
         {
             /*
             We create a compute pipeline here. 
@@ -532,10 +543,11 @@ namespace VulkanMinimalCompute
             */
             // the code in comp.spv was created by running the command:
             // glslangValidator.exe -V shader.comp
-            byte[] code = readFile("shaders/shader.comp.spv");
-            ShaderModuleCreateInfo createInfo = new ShaderModuleCreateInfo();
-            createInfo.Code = code;
-
+            byte[] code = ReadFile("shaders/shader.comp.spv");
+            ShaderModuleCreateInfo createInfo = new ShaderModuleCreateInfo()
+            {
+                Code = code
+            };
             computeShaderModule = device.CreateShaderModule(createInfo);
 
             /*
@@ -544,10 +556,12 @@ namespace VulkanMinimalCompute
             It only consists of a single stage with a compute shader. 
             So first we specify the compute shader stage, and it's entry point(main).
             */
-            PipelineShaderStageCreateInfo shaderStageCreateInfo = new PipelineShaderStageCreateInfo();
-            shaderStageCreateInfo.Stage = ShaderStages.Compute;// VK_SHADER_STAGE_COMPUTE_BIT;
-            shaderStageCreateInfo.Module = computeShaderModule;
-            shaderStageCreateInfo.Name = "main";
+            PipelineShaderStageCreateInfo shaderStageCreateInfo = new PipelineShaderStageCreateInfo()
+            {
+                Stage = ShaderStages.Compute,// VK_SHADER_STAGE_COMPUTE_BIT;
+                Module = computeShaderModule,
+                Name = "main"
+            };
 
             /*
             The pipeline layout allows the pipeline to access descriptor sets. 
@@ -556,9 +570,11 @@ namespace VulkanMinimalCompute
             PipelineLayoutCreateInfo pipelineLayoutCreateInfo = new PipelineLayoutCreateInfo(new[] { descriptorSetLayout });
             pipelineLayout = device.CreatePipelineLayout(pipelineLayoutCreateInfo);
 
-            ComputePipelineCreateInfo pipelineCreateInfo = new ComputePipelineCreateInfo();
-            pipelineCreateInfo.Stage = shaderStageCreateInfo;
-            pipelineCreateInfo.Layout = pipelineLayout;
+            ComputePipelineCreateInfo pipelineCreateInfo = new ComputePipelineCreateInfo()
+            {
+                Stage = shaderStageCreateInfo,
+                Layout = pipelineLayout
+            };
 
             /*
             Now, we finally create the compute pipeline. 
@@ -567,37 +583,43 @@ namespace VulkanMinimalCompute
             pipelines = device.CreateComputePipelines(ci);
         }
 
-        void createCommandBuffer()
+        void CreateCommandBuffer()
         {
             /*
             We are getting closer to the end. In order to send commands to the device(GPU),
             we must first record commands into a command buffer.
             To allocate a command buffer, we must first create a command pool. So let us do that.
             */
-            CommandPoolCreateInfo commandPoolCreateInfo = new CommandPoolCreateInfo();
-            commandPoolCreateInfo.Flags = 0;
-            // the queue family of this command pool. All command buffers allocated from this command pool,
-            // must be submitted to queues of this family ONLY. 
-            commandPoolCreateInfo.QueueFamilyIndex = queueFamilyIndex;
+            CommandPoolCreateInfo commandPoolCreateInfo = new CommandPoolCreateInfo()
+            {
+                Flags = 0,
+                // the queue family of this command pool. All command buffers allocated from this command pool,
+                // must be submitted to queues of this family ONLY. 
+                QueueFamilyIndex = computeQueueFamilyIndex
+            };
             commandPool = device.CreateCommandPool(commandPoolCreateInfo);
 
             /*
             Now allocate a command buffer from the command pool. 
             */
-            CommandBufferAllocateInfo commandBufferAllocateInfo = new CommandBufferAllocateInfo();
-            //commandBufferAllocateInfo.commandPool = commandPool; // specify the command pool to allocate from. 
-            // if the command buffer is primary, it can be directly submitted to queues. 
-            // A secondary buffer has to be called from some primary command buffer, and cannot be directly 
-            // submitted to a queue. To keep things simple, we use a primary command buffer. 
-            commandBufferAllocateInfo.Level = CommandBufferLevel.Primary;// VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-            commandBufferAllocateInfo.CommandBufferCount = 1; // allocate a single command buffer. 
+            CommandBufferAllocateInfo commandBufferAllocateInfo = new CommandBufferAllocateInfo()
+            {
+                //commandBufferAllocateInfo.commandPool = commandPool; // specify the command pool to allocate from. 
+                // if the command buffer is primary, it can be directly submitted to queues. 
+                // A secondary buffer has to be called from some primary command buffer, and cannot be directly 
+                // submitted to a queue. To keep things simple, we use a primary command buffer. 
+                Level = CommandBufferLevel.Primary,// VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+                CommandBufferCount = 1 // allocate a single command buffer. 
+            };
             commandBuffers = commandPool.AllocateBuffers(commandBufferAllocateInfo); // allocate command buffer.
 
             /*
             Now we shall start recording commands into the newly allocated command buffer. 
             */
-            CommandBufferBeginInfo beginInfo = new CommandBufferBeginInfo();
-            beginInfo.Flags = CommandBufferUsages.OneTimeSubmit;// VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT; // the buffer is only submitted and used once in this application.
+            CommandBufferBeginInfo beginInfo = new CommandBufferBeginInfo()
+            {
+                Flags = CommandBufferUsages.OneTimeSubmit// VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT; // the buffer is only submitted and used once in this application.
+            };
             commandBuffers[0].Begin(beginInfo); // start recording commands.
 
             /*
@@ -617,20 +639,24 @@ namespace VulkanMinimalCompute
             commandBuffers[0].End(); // end recording commands.
         }
 
-        void runCommandBuffer()
+        void RunCommandBuffer()
         {
             /*
             Now we shall finally submit the recorded command buffer to a queue.
             */
 
-            SubmitInfo submitInfo = new SubmitInfo();
-            submitInfo.CommandBuffers = commandBuffers.ToHandleArray(); // the command buffer to submit.
+            SubmitInfo submitInfo = new SubmitInfo()
+            {
+                CommandBuffers = commandBuffers.ToHandleArray() // the command buffer to submit.
+            };
 
             /*
               We create a fence.
             */
-            FenceCreateInfo fenceCreateInfo = new FenceCreateInfo();
-            fenceCreateInfo.Flags = 0;
+            FenceCreateInfo fenceCreateInfo = new FenceCreateInfo()
+            {
+                Flags = 0
+            };
             Fence fence = device.CreateFence(fenceCreateInfo);
 
             /*
@@ -649,7 +675,7 @@ namespace VulkanMinimalCompute
             fence.Dispose();
         }
 
-        public void cleanup()
+        public void Cleanup()
         {
             /*
             Clean up all Vulkan Resources. 
