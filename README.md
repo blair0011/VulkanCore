@@ -1,4 +1,4 @@
-# VulkanCore 
+﻿# VulkanCore 
 
 [![NuGet Pre Release](https://img.shields.io/nuget/vpre/VulkanCore.svg)](https://www.nuget.org/packages/VulkanCore)
 [![Vulkan](https://img.shields.io/badge/vulkan-1.0.53-brightgreen.svg)](https://www.khronos.org/vulkan/)
@@ -7,6 +7,7 @@
 [![Travis Build Status](https://img.shields.io/travis/discosultan/VulkanCore.svg?label=unix)](https://travis-ci.org/discosultan/VulkanCore)
 
 - [Introduction](#introduction)
+- [Why I Forked this](#why)
 - [Building](#building)
 - [Samples](#samples--)
 - [Tests](#tests--)
@@ -25,6 +26,12 @@ Pros:
 Cons:
 - Requires manual work to keep up to date with the Vulkan API registry
 - Cumbersome to modify the fundamentals - impossible to simply regenerate everything
+
+##Why
+I forked this so that I could make easy changes to the compilation system of the code (I needed to use .NET Framework 4.6.1), because of compatiblity
+issues with System.Drawing and Interop. My first usage was to port the vulkan minimal compute sample to VulkanCore https://github.com/Erkaman/vulkan_minimal_compute
+This works!!! I get a really nice mandelprot plot as a png file. Building on this work I am going to port some basic BLAS calls to Vulkan and see how it does with
+Linear Algebra.
 
 ## Building
 

@@ -1,26 +1,163 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <TargetFramework>netstandard1.3</TargetFramework>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <Version>1.0.0-alpha27</Version>
-    <Description>Vulkan bindings for .NET Standard</Description>
-    <Authors>discosultan</Authors>
-    <Company>discosultan</Company>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
-    <PackageProjectUrl>https://github.com/discosultan/VulkanCore</PackageProjectUrl>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/discosultan/VulkanCore/master/LICENSE</PackageLicenseUrl>
-    <RepositoryUrl>https://github.com/discosultan/VulkanCore</RepositoryUrl>
-    <PackageIconUrl>https://raw.githubusercontent.com/discosultan/VulkanCore/master/Doc/Vulkan64.png</PackageIconUrl>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{9F3F78DB-1309-4CC8-A614-FAE441C9D002}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>VulkanCore</RootNamespace>
+    <AssemblyName>VulkanCore</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>bin\Release\netstandard1.3\VulkanCore.xml</DocumentationFile>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>bin\Debug\netstandard1.3\VulkanCore.xml</DocumentationFile>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.3.0" />
-    <PackageReference Include="System.ValueTuple" Version="4.3.1" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.4.0-preview2-25405-01\lib\netstandard1.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.InteropServices.RuntimeInformation.4.3.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.4.0-preview2-25405-01\lib\net461\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AllocationCallbacks.cs" />
+    <Compile Include="Amd\CommandBufferExtensions.cs" />
+    <Compile Include="Bool.cs" />
+    <Compile Include="Buffer.cs" />
+    <Compile Include="BufferView.cs" />
+    <Compile Include="Color.cs" />
+    <Compile Include="CommandBuffer.cs" />
+    <Compile Include="CommandPool.cs" />
+    <Compile Include="Constant.cs" />
+    <Compile Include="DescriptorPool.cs" />
+    <Compile Include="DescriptorSet.cs" />
+    <Compile Include="DescriptorSetLayout.cs" />
+    <Compile Include="Device.cs" />
+    <Compile Include="DeviceMemory.cs" />
+    <Compile Include="Event.cs" />
+    <Compile Include="Extent.cs" />
+    <Compile Include="Ext\CommandBufferExtensions.cs" />
+    <Compile Include="Ext\DebugReportCallbackExt.cs" />
+    <Compile Include="Ext\DeviceExtensions.cs" />
+    <Compile Include="Ext\DisplayKhrExtensions.cs" />
+    <Compile Include="Ext\InstanceExtensions.cs" />
+    <Compile Include="Ext\PhysicalDeviceExtensions.cs" />
+    <Compile Include="Ext\PipelineExtensions.cs" />
+    <Compile Include="Ext\SamplerExtensions.cs" />
+    <Compile Include="Ext\SwapchainKhrExtensions.cs" />
+    <Compile Include="Fence.cs" />
+    <Compile Include="Format.cs" />
+    <Compile Include="Framebuffer.cs" />
+    <Compile Include="Google\SwapchainKhrExtensions.cs" />
+    <Compile Include="Handle.cs" />
+    <Compile Include="Image.cs" />
+    <Compile Include="ImageView.cs" />
+    <Compile Include="Instance.cs" />
+    <Compile Include="Interop.cs" />
+    <Compile Include="Khr\CommandBufferExtensions.cs" />
+    <Compile Include="Khr\CommandPoolExtensions.cs" />
+    <Compile Include="Khr\DescriptorSetExtensions.cs" />
+    <Compile Include="Khr\DescriptorUpdateTemplateKhr.cs" />
+    <Compile Include="Khr\DeviceExtensions.cs" />
+    <Compile Include="Khr\DisplayKhr.cs" />
+    <Compile Include="Khr\DisplayModeKhr.cs" />
+    <Compile Include="Khr\InstanceExtensions.cs" />
+    <Compile Include="Khr\PhysicalDeviceExtensions.cs" />
+    <Compile Include="Khr\QueueExtensions.cs" />
+    <Compile Include="Khr\SurfaceKhr.cs" />
+    <Compile Include="Khr\SwapchainKhr.cs" />
+    <Compile Include="Khx\CommandBufferExtensions.cs" />
+    <Compile Include="Khx\DeviceExtensions.cs" />
+    <Compile Include="Khx\DeviceMemoryExtensions.cs" />
+    <Compile Include="Khx\InstanceExtensions.cs" />
+    <Compile Include="Khx\PhysicalDeviceExtensions.cs" />
+    <Compile Include="Khx\SemaphoreExtensions.cs" />
+    <Compile Include="Mvk\InstanceExtensions.cs" />
+    <Compile Include="NN\InstanceExtensions.cs" />
+    <Compile Include="Nvx\CommandBufferExtensions.cs" />
+    <Compile Include="Nvx\DeviceExtensions.cs" />
+    <Compile Include="Nvx\IndirectCommandsLayoutNvx.cs" />
+    <Compile Include="Nvx\ObjectTableNvx.cs" />
+    <Compile Include="Nvx\PhysicalDeviceExtensions.cs" />
+    <Compile Include="NV\CommandBufferExtensions.cs" />
+    <Compile Include="NV\DeviceMemoryExtensions.cs" />
+    <Compile Include="NV\PhysicalDeviceExtensions.cs" />
+    <Compile Include="NV\PipelineExtensions.cs" />
+    <Compile Include="ObjectType.cs" />
+    <Compile Include="Offset.cs" />
+    <Compile Include="PhysicalDevice.cs" />
+    <Compile Include="Pipeline.cs" />
+    <Compile Include="PipelineCache.cs" />
+    <Compile Include="PipelineLayout.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QueryPool.cs" />
+    <Compile Include="Queue.cs" />
+    <Compile Include="Rect.cs" />
+    <Compile Include="RenderPass.cs" />
+    <Compile Include="Result.cs" />
+    <Compile Include="Sampler.cs" />
+    <Compile Include="Semaphore.cs" />
+    <Compile Include="ShaderModule.cs" />
+    <Compile Include="Size.cs" />
+    <Compile Include="StructureType.cs" />
+    <Compile Include="UtilityExtensions.cs" />
+    <Compile Include="Version.cs" />
+    <Compile Include="VulkanException.cs" />
+    <Compile Include="VulkanLibrary.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
